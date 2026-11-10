@@ -1,12 +1,17 @@
 const { defineConfig } = require("@playwright/test");
 
+const ci = !!process.env.CI;
+
 module.exports = defineConfig({
   testDir: "./suites",
   timeout: 120000,
-  reporter: [["list"]],
+  ...(ci ? { workers: 1 } : {}),
+  reporter: ci ? [["list"], ["html", { open: "never" }]] : [["list"]],
   use: {
-    headless: false,
+    headless: ci,
     viewport: { width: 1280, height: 860 },
-    launchOptions: { slowMo: 200 },
+    launchOptions: ci ? {} : { slowMo: 200 },
+    screenshot: ci ? "only-on-failure" : "off",
+    trace: ci ? "retain-on-failure" : "off",
   },
 });
