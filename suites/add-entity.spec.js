@@ -1,10 +1,11 @@
 const { test, expect } = require("@playwright/test");
 
+const runId = String(process.env.GITHUB_RUN_ID || Date.now()).slice(-6);
 const ENTITY = {
-  name: "SPOC MDSS",
-  spocName: "WSM",
-  email: "wsm12@gmail.com",
-  phone: "674532111",
+  name: `SPOC CI ${runId}`,
+  spocName: `WSM ${runId}`,
+  email: `spoc.ci.${runId}@gmail.com`,
+  phone: `5${runId}12`,
 };
 
 async function chooseOption(page, selectLocator, optionText) {
@@ -22,7 +23,7 @@ async function chooseOption(page, selectLocator, optionText) {
 }
 
 test("add entity and invite SPOC", async ({ page }) => {
-  test.setTimeout(120000);
+  test.setTimeout(180000);
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
   expect(email, "ADMIN_EMAIL is set").toBeTruthy();

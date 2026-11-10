@@ -1,9 +1,10 @@
 const { test, expect } = require("@playwright/test");
 
+const runId = String(process.env.GITHUB_RUN_ID || Date.now()).slice(-6);
 const USER = {
-  name: "NLO admin",
-  email: "NLO.admin34@gmail.com",
-  phone: "679834214",
+  name: `JCI CI ${runId}`,
+  email: `jci.ci.${runId}@gmail.com`,
+  phone: `7${runId}19`,
   role: "Admin",
 };
 

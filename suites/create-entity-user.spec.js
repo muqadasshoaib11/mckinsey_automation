@@ -1,9 +1,10 @@
 const { test, expect } = require("@playwright/test");
 
+const runId = String(process.env.GITHUB_RUN_ID || Date.now()).slice(-6);
 const ENTITY_USER = {
-  name: "QA Entity MS2",
-  email: "ms.entityqa789@gmail.com",
-  phone: "678451239",
+  name: `Entity CI ${runId}`,
+  email: `entity.ci.${runId}@gmail.com`,
+  phone: `6${runId}18`,
   role: "Entity User",
 };
 

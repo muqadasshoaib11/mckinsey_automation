@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-const APP_URL = "https://mjn-staging-app.vproj.com/admin";
+const APP_URL = "https://mjn-staging-app.vproj.com/admin/login";
 const LOGIN_API = "/api/v1/admin/login";
 
 test("admin login", async ({ page }) => {

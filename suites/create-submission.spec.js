@@ -126,6 +126,7 @@ test("SPOC submits and the JCI reviewer reviews NS-0948", async ({ page }) => {
   expect(response.status()).toBe(200);
   expect(String(body.status).toLowerCase()).toBe("success");
   await expect(page.getByText("Submitted to JCI").first()).toBeVisible();
+  const submissionId = (await page.getByText(/NS-\d+/).first().innerText()).match(/NS-\d+/)[0];
 
   const reviewer = await page.context().browser().newPage();
   await reviewer.goto("https://mjn-staging-app.vproj.com/admin/login", { waitUntil: "domcontentloaded" });
@@ -134,8 +135,11 @@ test("SPOC submits and the JCI reviewer reviews NS-0948", async ({ page }) => {
   await reviewer.getByRole("button", { name: /sign\s*in|log\s*in/i }).first().click();
   await reviewer.waitForURL(/dashboard/);
   await reviewer.locator("span").filter({ hasText: /^Submission$/ }).locator("visible=true").last().click();
-  await reviewer.getByText("NS-0948").first().waitFor();
-  const reviewRow = reviewer.getByText("NS-0948").first().locator("xpath=ancestor::tr[1]");
+  const reviewerSearch = reviewer.getByPlaceholder(/search/i).first();
+  await reviewerSearch.fill(submissionId);
+  await reviewerSearch.press("Enter");
+  await reviewer.getByText(submissionId).first().waitFor();
+  const reviewRow = reviewer.getByText(submissionId).first().locator("xpath=ancestor::tr[1]");
   await reviewRow.locator("img").click();
   await reviewer.locator(".ant-dropdown-menu-item").filter({ hasText: /^Review$/ }).click();
   await reviewer.getByRole("button", { name: /open submission/i }).click();
@@ -174,7 +178,10 @@ test("SPOC submits and the JCI reviewer reviews NS-0948", async ({ page }) => {
   expect(approval.status()).toBe(200);
 
   await reviewer.locator("span").filter({ hasText: /^Submission$/ }).locator("visible=true").last().click();
-  const reviewed = reviewer.getByText("NS-0948").first().locator("xpath=ancestor::tr[1]");
+  const reviewedSearch = reviewer.getByPlaceholder(/search/i).first();
+  await reviewedSearch.fill(submissionId);
+  await reviewedSearch.press("Enter");
+  const reviewed = reviewer.getByText(submissionId).first().locator("xpath=ancestor::tr[1]");
   await expect(reviewed).toContainText("JCI Feedback Shared");
   await reviewer.close();
 });

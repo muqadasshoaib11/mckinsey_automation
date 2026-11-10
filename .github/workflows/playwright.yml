@@ -59,10 +59,10 @@ jobs:
           }
           for (const file of walk("test-results")) {
             const text = fs.readFileSync(file, "utf8");
-            const error = text.match(/Error:[\s\S]*?(?=\n\n|\nCall log)/);
+            const error = text.match(/Error:[\s\S]{0,900}/);
             if (!error) continue;
             const line = error[0].replace(/\s+/g, " ").slice(0, 700);
-            console.log(`::error title=${path.basename(file)}::${line}`);
+            console.log(`::error title=${path.basename(path.dirname(file))}::${line}`);
           }
           NODE
             exit "$code"
