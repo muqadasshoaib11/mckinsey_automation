@@ -25,11 +25,47 @@ jobs:
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium chromium-headless-shell
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/ms-playwright
 
       - name: Run suites
-        run: npx playwright test
+        run: |
+          missing=0
+          for name in ADMIN_EMAIL ADMIN_PASSWORD USER_EMAIL USER_PASSWORD REVIEWER_EMAIL REVIEWER_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error title=Missing secret::${name} is not set"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+          set +e
+          npx playwright test
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ]; then
+            node <<'NODE'
+          const fs = require("fs");
+          const path = require("path");
+          function walk(dir, files = []) {
+            if (!fs.existsSync(dir)) return files;
+            for (const name of fs.readdirSync(dir)) {
+              const full = path.join(dir, name);
+              if (fs.statSync(full).isDirectory()) walk(full, files);
+              else if (name.endsWith(".md")) files.push(full);
+            }
+            return files;
+          }
+          const text = walk("test-results").map((file) => fs.readFileSync(file, "utf8")).join("\n");
+          const line = (text.match(/Error:.+/) || ["Playwright failed"])[0].replace(/\s+/g, " ").slice(0, 300);
+          console.log(`::error title=Playwright::${line}`);
+          NODE
+            exit "$code"
+          fi
         env:
           CI: true
+          PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/ms-playwright
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           USER_EMAIL: ${{ secrets.USER_EMAIL }}
