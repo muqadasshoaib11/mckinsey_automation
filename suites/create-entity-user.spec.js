@@ -80,8 +80,8 @@ test("SPOC requests an entity user and the admin approves it", async ({ page }) 
   await admin.waitForURL(/viewUserRequest/);
 
   await expect(admin.getByRole("paragraph").filter({ hasText: "Request Detail" })).toBeVisible();
-  await expect(admin.locator("body")).toContainText(ENTITY_USER.name);
-  await expect(admin.locator("body")).toContainText(ENTITY_USER.email);
+  await expect(admin.getByPlaceholder("Enter User Name")).toHaveValue(ENTITY_USER.name);
+  await expect(admin.getByPlaceholder("Enter User Email")).toHaveValue(ENTITY_USER.email);
   await expect(admin.locator("body")).toContainText(ENTITY_USER.role);
 
   const approved = admin.waitForResponse(
