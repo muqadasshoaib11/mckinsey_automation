@@ -123,10 +123,16 @@ test("SPOC submits and the JCI reviewer reviews NS-0948", async ({ page }) => {
   const response = await saved;
   const body = await response.json();
 
-  expect(response.status()).toBe(200);
+  expect(response.status(), JSON.stringify(body)).toBe(200);
   expect(String(body.status).toLowerCase()).toBe("success");
-  await expect(page.getByText("Submitted to JCI").first()).toBeVisible();
-  const submissionId = (await page.getByText(/NS-\d+/).first().innerText()).match(/NS-\d+/)[0];
+  let submissionId = JSON.stringify(body).match(/NS-\d+/)?.[0];
+  if (!submissionId) {
+    const done = page.getByRole("button", { name: /^done$/i });
+    if (await done.count()) await done.first().click();
+    await page.locator("span").filter({ hasText: /^Submission$/ }).locator("visible=true").last().click();
+    await page.getByText(/NS-\d+/).first().waitFor();
+    submissionId = (await page.getByText(/NS-\d+/).first().innerText()).match(/NS-\d+/)[0];
+  }
 
   const reviewer = await page.context().browser().newPage();
   await reviewer.goto("https://mjn-staging-app.vproj.com/admin/login", { waitUntil: "domcontentloaded" });

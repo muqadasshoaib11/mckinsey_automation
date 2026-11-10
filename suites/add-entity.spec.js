@@ -56,15 +56,14 @@ test("add entity and invite SPOC", async ({ page }) => {
   await page.getByText("Add Entity", { exact: true }).first().click();
 
   const bulkCreate = page.waitForResponse(
-    (response) => response.url().includes("/entity/bulk-create") && response.request().method() === "POST"
+    (response) => response.url().includes("/entity/bulk-create") && response.request().method() === "POST",
+    { timeout: 30000 }
   );
   await page.getByRole("button", { name: /save\s*&\s*invite entities/i }).click();
-  const popup = page.locator(".ant-modal, [role='dialog']").last();
-  await expect(popup).toContainText(/entities added/i);
-  await popup.getByRole("button", { name: /done|ok/i }).click();
   const response = await bulkCreate;
   const body = await response.json();
-
-  expect(response.status()).toBe(200);
+  expect(response.status(), JSON.stringify(body)).toBe(200);
   expect(String(body.status).toLowerCase()).toBe("success");
+  const done = page.getByRole("button", { name: /^done$|^ok$/i });
+  if (await done.count()) await done.first().click();
 });

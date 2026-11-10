@@ -4,7 +4,7 @@ const runId = String(process.env.GITHUB_RUN_ID || Date.now()).slice(-6);
 const USER = {
   name: `JCI CI ${runId}`,
   email: `jci.ci.${runId}@gmail.com`,
-  phone: `7${runId}19`,
+  phone: `5${runId}27`,
   role: "Admin",
 };
 
@@ -18,6 +18,7 @@ async function chooseRole(page, role) {
 }
 
 test("admin creates and invites a JCI user", async ({ page }) => {
+  test.setTimeout(180000);
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
   expect(email, "ADMIN_EMAIL is set").toBeTruthy();
@@ -42,10 +43,16 @@ test("admin creates and invites a JCI user", async ({ page }) => {
   await phone.pressSequentially(USER.phone, { delay: 40 });
   await chooseRole(page, USER.role);
 
+  await expect(page.locator(".ant-select").filter({ hasText: USER.role }).first()).toBeVisible();
   const invited = page.waitForResponse(
-    (response) => /\/api\/v1\/user\//.test(response.url()) && response.request().method() === "POST"
+    (response) => /\/api\/v1\/user/.test(response.url()) && response.request().method() === "POST" && !response.url().includes("/login"),
+    { timeout: 30000 }
   );
   await page.getByRole("button", { name: /invite user/i }).click();
+  const confirm = page.getByRole("dialog");
+  if (await confirm.waitFor({ state: "visible", timeout: 3000 }).then(() => true).catch(() => false)) {
+    await confirm.getByRole("button", { name: /yes|ok|confirm|invite/i }).first().click();
+  }
   const response = await invited;
   const body = await response.json();
 

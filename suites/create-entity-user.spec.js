@@ -4,7 +4,7 @@ const runId = String(process.env.GITHUB_RUN_ID || Date.now()).slice(-6);
 const ENTITY_USER = {
   name: `Entity CI ${runId}`,
   email: `entity.ci.${runId}@gmail.com`,
-  phone: `6${runId}18`,
+  phone: `5${runId}18`,
   role: "Entity User",
 };
 
@@ -50,13 +50,14 @@ test("SPOC requests an entity user and the admin approves it", async ({ page }) 
   await phone.pressSequentially(ENTITY_USER.phone, { delay: 40 });
   await chooseRole(page, ENTITY_USER.role);
 
+  await expect(page.locator(".ant-select").filter({ hasText: ENTITY_USER.role }).first()).toBeVisible();
   const created = page.waitForResponse(
     (response) => /\/api\/v1\/user\/create/.test(response.url()) && response.request().method() === "POST"
   );
   await page.getByRole("button", { name: /submit request/i }).click();
   const createResponse = await created;
   const createBody = await createResponse.json();
-  expect(createResponse.status()).toBe(200);
+  expect(createResponse.status(), JSON.stringify(createBody)).toBe(200);
   expect(String(createBody.status).toLowerCase()).toBe("success");
 
   const added = page.getByRole("dialog").filter({ hasText: "User Added" });
