@@ -1,0 +1,15 @@
+{
+  "name": "admin-login-playwright",
+  "private": true,
+  "scripts": {
+    "test:login": "playwright test login.spec.js --headed",
+    "test:add-entity": "playwright test add-entity.spec.js --headed",
+    "test:submission": "playwright test create-submission.spec.js --headed",
+    "test:jci-user": "playwright test create-jci-user.spec.js --headed",
+    "test:entity-user": "playwright test create-entity-user.spec.js --headed",
+    "test:entity-user-ms3": "playwright test create-entity-user-ms3.spec.js --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0"
+  }
+}
