@@ -56,7 +56,7 @@ test("admin creates and invites a JCI user", async ({ page }) => {
   const response = await invited;
   const body = await response.json();
 
-  expect(response.status()).toBe(200);
+  expect(response.status(), JSON.stringify(body)).toBe(200);
   expect(String(body.status).toLowerCase()).toBe("success");
   await page.locator("span").filter({ hasText: /^JCI Users$/ }).locator("visible=true").last().click();
   await expect(page.getByText(USER.email).first()).toBeVisible();
