@@ -1,8 +1,10 @@
 const { test, expect } = require("@playwright/test");
 
 const runId = String(process.env.GITHUB_RUN_ID || Date.now()).slice(-6);
+const letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
+const nameSuffix = [...runId].map((digit) => letters[Number(digit)]).join("");
 const USER = {
-  name: `JCI CI ${runId}`,
+  name: `JCI ${nameSuffix}`,
   email: `jci.ci.${runId}@gmail.com`,
   phone: `5${runId}27`,
   role: "Admin",
