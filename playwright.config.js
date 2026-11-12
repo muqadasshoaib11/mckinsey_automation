@@ -3,7 +3,7 @@ const { defineConfig } = require("@playwright/test");
 const ci = !!process.env.CI;
 
 module.exports = defineConfig({
-  testDir: "./suites",
+  testDir: "./Mckinsey JCI Suites",
   timeout: 120000,
   ...(ci ? { workers: 1 } : {}),
   reporter: ci ? [["list"], ["html", { open: "never" }]] : [["list"]],
