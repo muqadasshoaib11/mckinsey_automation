@@ -47,19 +47,18 @@ test("admin creates and invites a JCI user", async ({ page }) => {
 
   await expect(page.locator(".ant-select").filter({ hasText: USER.role }).first()).toBeVisible();
   const invited = page.waitForResponse(
-    (response) => /\/api\/v1\/user/.test(response.url()) && response.request().method() === "POST" && !response.url().includes("/login"),
+    (response) => response.url().includes("/api/v1/admin/invite") && response.request().method() === "POST",
     { timeout: 30000 }
   );
   await page.getByRole("button", { name: /invite user/i }).click();
-  const confirm = page.getByRole("dialog");
-  if (await confirm.waitFor({ state: "visible", timeout: 3000 }).then(() => true).catch(() => false)) {
-    await confirm.getByRole("button", { name: /yes|ok|confirm|invite/i }).first().click();
-  }
   const response = await invited;
   const body = await response.json();
 
   expect(response.status(), JSON.stringify(body)).toBe(200);
   expect(String(body.status).toLowerCase()).toBe("success");
+  const added = page.getByRole("dialog").filter({ hasText: "User Added" });
+  await expect(added).toBeVisible();
+  await added.getByRole("button", { name: /^done$/i }).click();
   await page.locator("span").filter({ hasText: /^JCI Users$/ }).locator("visible=true").last().click();
   await expect(page.getByText(USER.email).first()).toBeVisible();
   await expect(page.getByText(USER.name).first()).toBeVisible();

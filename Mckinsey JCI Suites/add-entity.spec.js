@@ -64,6 +64,7 @@ test("add entity and invite SPOC", async ({ page }) => {
   const body = await response.json();
   expect(response.status(), JSON.stringify(body)).toBe(200);
   expect(String(body.status).toLowerCase()).toBe("success");
-  const done = page.getByRole("button", { name: /^done$|^ok$/i });
-  if (await done.count()) await done.first().click();
+  const added = page.getByRole("dialog").filter({ hasText: "Entities Added" });
+  await expect(added).toBeVisible();
+  await added.getByRole("button", { name: /^done$/i }).click();
 });
