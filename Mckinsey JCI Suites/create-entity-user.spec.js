@@ -66,8 +66,7 @@ test("SPOC requests an entity user and the admin approves it", async ({ page }) 
 
   const admin = await page.context().browser().newPage({ viewport: { width: 1280, height: 860 } });
   await signIn(admin, "https://mjn-staging-app.vproj.com/admin/login", adminEmail, adminPassword);
-  await admin.locator("span").filter({ hasText: /^Users List$/ }).locator("visible=true").last().click();
-  await admin.waitForURL(/usersRequest/);
+  await admin.goto("https://mjn-staging-app.vproj.com/admin/usersRequest", { waitUntil: "domcontentloaded" });
 
   const search = admin.getByPlaceholder(/search/i).first();
   await search.fill(ENTITY_USER.email);
